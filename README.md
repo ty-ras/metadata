@@ -8,3 +8,8 @@ The protocol specification is checked both at compile-time and run-time to verif
 This all is done in such way that it does not make development tedious or boring, but instead robust and fun!
 
 This particular repository contains generic metadata related libraries, and is designed to be consumed by other TyRAS libraries.
+- [metadata](./metadata) contains metadata related types and utilities, without specifying which metadata technique (OpenAPI or something else) to use, and
+- [metadata-jsonschema](./metadata-jsonschema) contains metadata related types and utilities to work with JSON Schema.
+
+Notice that neither of the above libraries use OpenAPI concepts.
+See [TyRAS OpenAPI library](https://github.com/ty-ras/metadata-openapi) for the library which allows generating OpenAPI data from TyRAS endpoints.
