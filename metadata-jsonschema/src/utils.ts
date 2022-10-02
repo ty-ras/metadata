@@ -139,25 +139,7 @@ export const tryToCompressUnionOfMaybeEnums = (
 ) => {
   if (schema && typeof schema === "object" && "anyOf" in schema) {
     const spreadEnumValues: Array<jsonSchema.JSONSchema7Type> = [];
-    const allAreConstsOrEnums =
-      schema.anyOf?.every((element) => {
-        let isConstOrEnum = false;
-        if (element && typeof element === "object") {
-          const { const: constValue } = element;
-          if (constValue !== undefined) {
-            isConstOrEnum = true;
-            spreadEnumValues.push(constValue);
-          } else {
-            const { enum: enumValue } = element;
-            if (enumValue !== undefined && enumValue.length > 0) {
-              isConstOrEnum = true;
-              spreadEnumValues.push(...enumValue);
-            }
-          }
-        }
-        return isConstOrEnum;
-      }) === true;
-    if (allAreConstsOrEnums) {
+    if (areAllConstsOrEnums(schema, spreadEnumValues)) {
       schema =
         spreadEnumValues.length === 1
           ? {
@@ -170,6 +152,28 @@ export const tryToCompressUnionOfMaybeEnums = (
   }
   return schema;
 };
+
+const areAllConstsOrEnums = (
+  schema: jsonSchema.JSONSchema7,
+  spreadEnumValues: Array<jsonSchema.JSONSchema7Type> = [],
+) =>
+  schema.anyOf?.every((element) => {
+    let isConstOrEnum = false;
+    if (element && typeof element === "object") {
+      const { const: constValue } = element;
+      if (constValue !== undefined) {
+        isConstOrEnum = true;
+        spreadEnumValues.push(constValue);
+      } else {
+        const { enum: enumValue } = element;
+        if (enumValue !== undefined && enumValue.length > 0) {
+          isConstOrEnum = true;
+          spreadEnumValues.push(...enumValue);
+        }
+      }
+    }
+    return isConstOrEnum;
+  }) === true;
 
 // Flatten e.g. Union<Union<string, number>, Union<X, Y>> into Union<string, number, X, Y>
 export function* flattenDeepStructures<T>(

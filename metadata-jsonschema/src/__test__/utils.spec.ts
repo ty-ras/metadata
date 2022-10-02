@@ -123,9 +123,9 @@ test("Validate arrayToRecord works", (t) => {
 
 test("Validate createJsonSchemaFunctionality works", (t) => {
   t.plan(75);
-  verifyCreateJsonSchemaFunctionality(t, "none");
-  verifyCreateJsonSchemaFunctionality(t, "return-undefined");
-  verifyCreateJsonSchemaFunctionality(t, "return-schema");
+  verifyCreateJsonSchemaFunctionality(t, none);
+  verifyCreateJsonSchemaFunctionality(t, returnUndefined);
+  verifyCreateJsonSchemaFunctionality(t, returnSchema);
 });
 
 const verifyTryToCompressUnionOfMaybeEnums = (
@@ -143,7 +143,7 @@ const verifyTryToCompressUnionOfMaybeEnums = (
 
 const verifyCreateJsonSchemaFunctionality = (
   t: ExecutionContext,
-  overrideMode: "none" | "return-schema" | "return-undefined",
+  overrideMode: typeof none | typeof returnSchema | typeof returnUndefined,
 ) => {
   const transforms: Record<string, functionality.JSONSchema> = {
     one: {
@@ -157,14 +157,14 @@ const verifyCreateJsonSchemaFunctionality = (
   };
   const overrides: Record<string, functionality.JSONSchema | undefined> = {
     two:
-      overrideMode === "return-schema"
+      overrideMode === returnSchema
         ? {
             const: "two",
           }
         : undefined,
   };
   const override =
-    overrideMode !== "none" ? (input: string) => overrides[input] : undefined;
+    overrideMode !== none ? (input: string) => overrides[input] : undefined;
   const transformAndOverride = {
     transform,
     override,
@@ -230,7 +230,11 @@ const verifyCreateJsonSchemaFunctionality = (
   testEncoderOrDecoder("one", true, true);
   testEncoderOrDecoder(
     "two",
-    overrideMode === "return-schema",
-    overrideMode !== "return-schema",
+    overrideMode === returnSchema,
+    overrideMode !== returnSchema,
   );
 };
+
+const returnSchema = "return-schema";
+const none = "none";
+const returnUndefined = "return-undefined";
