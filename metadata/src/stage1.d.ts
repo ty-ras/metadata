@@ -58,15 +58,9 @@ export interface EndpointMetadataInformation<
     | data.QueryDataValidatorSpecMetadata<string, TStringDecoder>
     | undefined;
   inputSpec:
-    | Omit<
-        data.DataValidatorRequestInputSpec<unknown, TInputContents>,
-        "validator"
-      >
+    | data.DataValidatorResponseInputValidatorSpec<TInputContents>
     | undefined;
-  outputSpec: Omit<
-    data.DataValidatorResponseOutputSpec<unknown, TOutputContents>,
-    "validator"
-  >;
+  outputSpec: data.DataValidatorResponseOutputValidatorSpec<TOutputContents>;
   metadataArguments: common.Kind<
     TArgument,
     Record<string, unknown>,
