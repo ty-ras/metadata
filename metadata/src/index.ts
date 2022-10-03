@@ -4,8 +4,10 @@
 export type { HKTArg, Kind } from "./common";
 export type { MetadataProvider } from "./stage0";
 export type {
+  EndpointMetadataInformation,
   MetadataBuilder,
   SingleEndpointResult,
   URLParameterSpec,
+  URLParametersInfo,
 } from "./stage1";
 export * from "./utils";
