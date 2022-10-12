@@ -46,7 +46,7 @@ export type JSONSchemaFunctionalityCreationArgumentsContentTypesOnly<
   TKeys extends string,
   TInput,
 > = {
-  contentTypes: Array<TKeys>;
+  contentTypes: ReadonlyArray<TKeys>;
   fallbackValue?: FallbackValue<TInput>;
 };
 
@@ -87,7 +87,10 @@ export type SupportedJSONSchemaFunctionality<
   };
 };
 
-export type Transformer<TInput, TReturnType> = (input: TInput) => TReturnType;
+export type Transformer<TInput, TReturnType> = (
+  input: TInput,
+  cutOffTopLevelUndefined: boolean,
+) => TReturnType;
 
 export type JSONSchema = jsonSchema.JSONSchema7Definition;
 

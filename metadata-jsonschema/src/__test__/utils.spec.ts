@@ -8,16 +8,16 @@ test("Validate transformerFromConstructor works", (t) => {
     d.toISOString(),
   );
   const date = new Date();
-  t.deepEqual(transformer(date), date.toISOString());
-  t.deepEqual(transformer("Hello"), undefined);
+  t.deepEqual(transformer(date, true), date.toISOString());
+  t.deepEqual(transformer("Hello", true), undefined);
 });
 
 test("Validate transformerFromEquality works", (t) => {
   t.plan(2);
   const value = 123;
   const transformer = spec.transformerFromEquality(value, (n) => `${n}`);
-  t.deepEqual(transformer(value), "123");
-  t.deepEqual(transformer(124), undefined);
+  t.deepEqual(transformer(value, true), "123");
+  t.deepEqual(transformer(124, true), undefined);
 });
 
 test("Validate transformerFromMany works", (t) => {
@@ -28,10 +28,10 @@ test("Validate transformerFromMany works", (t) => {
     spec.transformerFromEquality(123, (n) => `${n}`),
   ]);
   const date = new Date();
-  t.deepEqual(transformer(date), date.toISOString());
-  t.deepEqual(transformer(123), "123");
-  t.deepEqual(transformer(124), undefined);
-  t.deepEqual(transformer("Hello"), undefined);
+  t.deepEqual(transformer(date, true), date.toISOString());
+  t.deepEqual(transformer(123, true), "123");
+  t.deepEqual(transformer(124, true), undefined);
+  t.deepEqual(transformer("Hello", true), undefined);
 });
 
 test("Validate getFallbackValue works", (t) => {
@@ -208,7 +208,7 @@ const verifyCreateJsonSchemaFunctionality = (
       seenSchemas.length = 0;
       const expectedResult = shouldHaveResult ? { const: input } : undefined;
       t.deepEqual(
-        schemaTransformer(input),
+        schemaTransformer(input, true),
         expectedResult,
         `Schema transform ${idx} must've succeeded with expected result`,
       );

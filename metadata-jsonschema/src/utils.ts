@@ -33,13 +33,13 @@ export const createJsonSchemaFunctionality = <
   TOutputContents,
   TInputContents
 > => ({
-  stringDecoder: (input) =>
+  stringDecoder: (...args) =>
     transformSchema(
-      stringDecoderOverride?.(input) ?? stringDecoderTransform(input),
+      stringDecoderOverride?.(...args) ?? stringDecoderTransform(...args),
     ),
-  stringEncoder: (input) =>
+  stringEncoder: (...args) =>
     transformSchema(
-      stringEncoderOverride?.(input) ?? stringEncoderTransform(input),
+      stringEncoderOverride?.(...args) ?? stringEncoderTransform(...args),
     ),
   encoders: Object.fromEntries(
     Object.entries(encoders).map<
@@ -55,7 +55,7 @@ export const createJsonSchemaFunctionality = <
       ]
     >(([contentType, { transform, override }]) => [
       contentType,
-      (encoder) => transformSchema(override?.(encoder) ?? transform(encoder)),
+      (...args) => transformSchema(override?.(...args) ?? transform(...args)),
     ]),
   ) as unknown as functionality.SupportedJSONSchemaFunctionality<
     TTransformedSchema,
@@ -78,7 +78,7 @@ export const createJsonSchemaFunctionality = <
       ]
     >(([contentType, { transform, override }]) => [
       contentType,
-      (decoder) => transformSchema(override?.(decoder) ?? transform(decoder)),
+      (...args) => transformSchema(override?.(...args) ?? transform(...args)),
     ]),
   ) as unknown as functionality.SupportedJSONSchemaFunctionality<
     TTransformedSchema,
@@ -95,27 +95,29 @@ export const transformerFromConstructor =
     ctor: Constructor<TInput>,
     tryTransform: functionality.Transformer<TInput, TOutput>,
   ): functionality.Transformer<unknown, TOutput | undefined> =>
-  (input) =>
-    input instanceof ctor ? tryTransform(input) : undefined;
+  (input, ...args) =>
+    input instanceof ctor ? tryTransform(input, ...args) : undefined;
 
 export const transformerFromEquality =
   <TInput, TOutput>(
     value: TInput,
     tryTransform: functionality.Transformer<TInput, TOutput>,
   ): functionality.Transformer<unknown, TOutput | undefined> =>
-  (input) =>
-    input === value ? tryTransform(input as TInput) : undefined;
+  (input, ...args) =>
+    input === value ? tryTransform(input as TInput, ...args) : undefined;
 
 export const transformerFromMany =
   <TInput, TOutput>(
     matchers: Array<functionality.Transformer<TInput, TOutput | undefined>>,
   ): functionality.Transformer<TInput, TOutput | undefined> =>
   // TODO create a copy out of matchers to prevent modifications outside of this scope
-  (input) => {
+  (input, ...args) => {
     // Reduce doesn't provide a way to break early out from the loop
     // We could use .every and return false, and inside lambda scope, modifying the result variable declared in this scope
     let result: TOutput | undefined;
-    matchers.every((matcher) => (result = matcher(input)) === undefined);
+    matchers.every(
+      (matcher) => (result = matcher(input, ...args)) === undefined,
+    );
     return result;
   };
 
