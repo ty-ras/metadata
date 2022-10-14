@@ -9,14 +9,8 @@ export const createJsonSchemaFunctionality = <
   TInputContents extends functionality.TContentsBase,
 >({
   transformSchema,
-  stringDecoder: {
-    transform: stringDecoderTransform,
-    override: stringDecoderOverride,
-  },
-  stringEncoder: {
-    transform: stringEncoderTransform,
-    override: stringEncoderOverride,
-  },
+  stringDecoder,
+  stringEncoder,
   encoders,
   decoders,
   getUndefinedPossibility,
@@ -35,11 +29,11 @@ export const createJsonSchemaFunctionality = <
 > => ({
   stringDecoder: (...args) =>
     transformSchema(
-      stringDecoderOverride?.(...args) ?? stringDecoderTransform(...args),
+      stringDecoder.override?.(...args) ?? stringDecoder.transform(...args),
     ),
   stringEncoder: (...args) =>
     transformSchema(
-      stringEncoderOverride?.(...args) ?? stringEncoderTransform(...args),
+      stringEncoder.override?.(...args) ?? stringEncoder.transform(...args),
     ),
   encoders: Object.fromEntries(
     Object.entries(encoders).map<
