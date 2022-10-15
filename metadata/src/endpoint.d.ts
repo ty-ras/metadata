@@ -1,32 +1,32 @@
 import type * as data from "@ty-ras/data-backend";
 import type * as common from "./common";
 
-export interface MetadataBuilder<
+export type GetEndpointsMetadata<
   TArgument extends common.HKTArg,
   TEndpointArg,
   TEndpointMD,
+  TEndpointState,
   TStringDecoder,
   TStringEncoder,
   TOutputContents extends data.TOutputContentsBase,
   TInputContents extends data.TInputContentsBase,
-> {
-  getEndpointsMetadata: (
-    arg: TEndpointArg,
-    urlSpec: URLParametersInfo<TStringDecoder>,
-    methods: Partial<
-      Record<
-        string,
-        EndpointMetadataInformation<
-          TArgument,
-          TStringDecoder,
-          TStringEncoder,
-          TOutputContents,
-          TInputContents
-        >
+> = (
+  arg: TEndpointArg,
+  urlSpec: URLParametersInfo<TStringDecoder>,
+  methods: Partial<
+    Record<
+      string,
+      EndpointMetadataInformation<
+        TArgument,
+        TEndpointState,
+        TStringDecoder,
+        TStringEncoder,
+        TOutputContents,
+        TInputContents
       >
-    >,
-  ) => SingleEndpointResult<TEndpointMD>;
-}
+    >
+  >,
+) => SingleEndpointResult<TEndpointMD>;
 
 export type SingleEndpointResult<TEndpointMD> = (
   urlPrefix: string,
@@ -43,6 +43,7 @@ export type URLParameterSpec<TStringDecoder> =
 
 export interface EndpointMetadataInformation<
   TArgument extends common.HKTArg,
+  TEndpointState,
   TStringDecoder,
   TStringEncoder,
   TOutputContents extends data.TOutputContentsBase,
@@ -63,6 +64,7 @@ export interface EndpointMetadataInformation<
   outputSpec: data.DataValidatorResponseOutputValidatorSpec<TOutputContents>;
   metadataArguments: common.Kind<
     TArgument,
+    TEndpointState,
     Record<string, unknown>,
     Record<string, unknown>,
     Record<string, unknown>,

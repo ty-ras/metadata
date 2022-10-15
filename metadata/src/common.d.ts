@@ -1,5 +1,6 @@
 // Higher-kinded-type trick from: https://www.matechs.com/blog/encoding-hkts-in-typescript-once-again
 export interface HKTArg {
+  readonly _TState?: unknown;
   readonly _TURLData?: unknown;
   readonly _TMethod?: unknown;
   readonly _TRequestHeaders?: unknown;
@@ -13,6 +14,7 @@ export interface HKTArg {
 
 export type Kind<
   F extends HKTArg,
+  TState,
   TURLData,
   TQuery,
   TRequestHeaders,
@@ -23,6 +25,7 @@ export type Kind<
   readonly type: unknown;
 }
   ? (F & {
+      readonly _TState: TState;
       readonly _TURLData: TURLData;
       readonly _TRequestHeaders: TRequestHeaders;
       readonly _TResponseHeaders: TResponseHeaders;
