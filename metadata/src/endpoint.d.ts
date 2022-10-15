@@ -61,7 +61,6 @@ export interface EndpointMetadataInformation<
   outputSpec: data.DataValidatorResponseOutputValidatorSpec<TOutputContents>;
   metadataArguments: common.Kind<
     TArgument,
-    unknown,
     Record<string, unknown>,
     Record<string, unknown>,
     Record<string, unknown>,
