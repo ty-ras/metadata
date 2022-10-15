@@ -1,12 +1,12 @@
 import type * as data from "@ty-ras/data-backend";
 import type * as common from "./common";
-import type * as stage1 from "./stage1";
+import type * as endpoint from "./endpoint";
 
 export interface MetadataProvider<
   TArgument extends common.HKTArg,
   TEndpointArg,
   TEndpointMD,
-  TContextArguments,
+  TEndpointState,
   TStringDecoder,
   TStringEncoder,
   TOutputContents extends data.TOutputContentsBase,
@@ -14,25 +14,11 @@ export interface MetadataProvider<
   TFinalMetadataArgs,
   TFinalMetadata,
 > {
-  withRefinedContext(
-    contextArgs: TContextArguments,
-  ): MetadataProvider<
+  getEndpointsMetadata: endpoint.GetEndpointsMetadata<
     TArgument,
     TEndpointArg,
     TEndpointMD,
-    TContextArguments,
-    TStringDecoder,
-    TStringEncoder,
-    TOutputContents,
-    TInputContents,
-    TFinalMetadataArgs,
-    TFinalMetadata
-  >;
-
-  getBuilder(): stage1.MetadataBuilder<
-    TArgument,
-    TEndpointArg,
-    TEndpointMD,
+    TEndpointState,
     TStringDecoder,
     TStringEncoder,
     TOutputContents,
