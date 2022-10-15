@@ -5,7 +5,6 @@ export type GetEndpointsMetadata<
   TArgument extends common.HKTArg,
   TEndpointArg,
   TEndpointMD,
-  TEndpointState,
   TStringDecoder,
   TStringEncoder,
   TOutputContents extends data.TOutputContentsBase,
@@ -18,7 +17,6 @@ export type GetEndpointsMetadata<
       string,
       EndpointMetadataInformation<
         TArgument,
-        TEndpointState,
         TStringDecoder,
         TStringEncoder,
         TOutputContents,
@@ -43,7 +41,6 @@ export type URLParameterSpec<TStringDecoder> =
 
 export interface EndpointMetadataInformation<
   TArgument extends common.HKTArg,
-  TEndpointState,
   TStringDecoder,
   TStringEncoder,
   TOutputContents extends data.TOutputContentsBase,
@@ -64,7 +61,7 @@ export interface EndpointMetadataInformation<
   outputSpec: data.DataValidatorResponseOutputValidatorSpec<TOutputContents>;
   metadataArguments: common.Kind<
     TArgument,
-    TEndpointState,
+    unknown,
     Record<string, unknown>,
     Record<string, unknown>,
     Record<string, unknown>,
