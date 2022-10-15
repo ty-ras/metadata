@@ -10,6 +10,7 @@ export type MetadataProvider<
   TStringEncoder,
   TOutputContents extends data.TOutputContentsBase,
   TInputContents extends data.TInputContentsBase,
+  TStateMD,
   TFinalMetadataArgs,
   TFinalMetadata,
 > = MetadataProviderForEndpoints<
@@ -23,7 +24,10 @@ export type MetadataProvider<
 > & {
   createFinalMetadata: (
     args: TFinalMetadataArgs,
-    endpointsMetadatas: ReadonlyArray<TEndpointMD>,
+    endpointsMetadatas: ReadonlyArray<{
+      md: TEndpointMD;
+      stateMD: TStateMD;
+    }>,
   ) => TFinalMetadata;
 };
 
