@@ -362,6 +362,13 @@
   resolved "https://registry.yarnpkg.com/@ty-ras/data/-/data-0.11.1.tgz#23d4bb890273ebb917c384371dbc5f2e49bbcde5"
   integrity sha512-sq5Qutpt0S7Ab9clkWi44Jo8XSyDtWDV4ZvTqUUSQH5ef6VWKiXqB9Nw2uttrEaIHP32hDdl1VAbyD6sb3P/SQ==
 
+"@ty-ras/endpoint@0.11.4":
+  version "0.11.4"
+  resolved "https://registry.yarnpkg.com/@ty-ras/endpoint/-/endpoint-0.11.4.tgz#b3096e8206a87651caaac8e47d503070c652b23f"
+  integrity sha512-q1+w80hdJ6rwhWjSdre9RUGL0Wpfii+mRafHzDvJBWCy1nOgV5odDcZ8uwNF/ZBXJwm9HutDf1yRNywZOmJmlQ==
+  dependencies:
+    "@ty-ras/data-backend" "0.11.1"
+
 "@types/istanbul-lib-coverage@^2.0.1":
   version "2.0.4"
   resolved "https://registry.yarnpkg.com/@types/istanbul-lib-coverage/-/istanbul-lib-coverage-2.0.4.tgz#8467d4b3c087805d63580480890791277ce35c44"

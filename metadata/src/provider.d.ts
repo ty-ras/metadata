@@ -1,4 +1,5 @@
 import type * as data from "@ty-ras/data-backend";
+import type * as ep from "@ty-ras/endpoint";
 import type * as common from "./common";
 import type * as endpoint from "./endpoint";
 
@@ -26,7 +27,7 @@ export type MetadataProvider<
     args: TFinalMetadataArgs,
     endpointsMetadatas: ReadonlyArray<{
       md: TEndpointMD;
-      stateMD: TStateMD;
+      stateMD: Partial<Record<ep.HttpMethod, TStateMD>>;
     }>,
   ) => TFinalMetadata;
 };
