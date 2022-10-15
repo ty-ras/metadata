@@ -189,7 +189,7 @@ export function* flattenDeepStructures<T>(
 }
 
 export const arrayToRecord = <TKeys extends string, TValue>(
-  keys: Array<TKeys>,
+  keys: ReadonlyArray<TKeys>,
   createValue: (key: TKeys) => TValue,
 ) =>
   Object.fromEntries(keys.map((key) => [key, createValue(key)])) as Record<
