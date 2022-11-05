@@ -171,7 +171,7 @@ const verifyCreateJsonSchemaFunctionality = (
   };
   const getUndefinedPossibility = () => true;
   const seenSchemas: Array<functionality.JSONSchema> = [];
-  const transformFunctionality = spec.createJsonSchemaFunctionality({
+  const transformFunctionality = spec.createJsonSchemaFunctionalityGeneric({
     transformSchema: (schema) => {
       seenSchemas.push(schema);
       return schema;
