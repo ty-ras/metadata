@@ -1,7 +1,7 @@
 import type * as jsonSchema from "json-schema";
 import type * as functionality from "./functionality";
 
-export const createJsonSchemaFunctionality = <
+export const createJsonSchemaFunctionalityGeneric = <
   TTransformedSchema,
   TStringDecoder,
   TStringEncoder,
@@ -117,7 +117,7 @@ export const transformerFromMany =
 
 export const getFallbackValue = <TInput>(
   input: TInput | undefined,
-  fallbackValue: functionality.FallbackValue<TInput>,
+  fallbackValue: functionality.FallbackValueGeneric<TInput>,
 ): functionality.JSONSchema =>
   typeof fallbackValue === "function"
     ? input === undefined

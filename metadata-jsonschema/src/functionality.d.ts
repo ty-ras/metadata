@@ -47,19 +47,22 @@ export type JSONSchemaFunctionalityCreationArgumentsContentTypesOnly<
   TInput,
 > = {
   contentTypes: ReadonlyArray<TKeys>;
-  fallbackValue?: FallbackValue<TInput>;
+  fallbackValue?: FallbackValueGeneric<TInput>;
 };
 
-export type FallbackValue<TInput> =
+export type FallbackValueGeneric<TInput> =
   | JSONSchema
   | ((input: TInput) => JSONSchema | undefined);
 
 export interface SchemaTransformation<TInput> {
-  override: Override<TInput> | undefined;
+  override: OverrideGeneric<TInput> | undefined;
   transform: Transformer<TInput, JSONSchema>;
 }
 
-export type Override<TInput> = Transformer<TInput, JSONSchema | undefined>;
+export type OverrideGeneric<TInput> = Transformer<
+  TInput,
+  JSONSchema | undefined
+>;
 
 export type SupportedJSONSchemaFunctionality<
   TTransformedSchema,
