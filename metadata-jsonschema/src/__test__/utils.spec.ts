@@ -63,7 +63,7 @@ test("Validate getFallbackValue works", (t) => {
 });
 
 test("Validate tryToCompressUnionOfMaybeEnums works", (t) => {
-  t.plan(9);
+  t.plan(11);
 
   // Inputs which should not compress anything
   verifyTryToCompressUnionOfMaybeEnums(t, {});
@@ -90,6 +90,19 @@ test("Validate tryToCompressUnionOfMaybeEnums works", (t) => {
     t,
     { anyOf: [{ const: "constValue1" }, { enum: ["constValue2"] }] },
     { enum: ["constValue1", "constValue2"] },
+  );
+  verifyTryToCompressUnionOfMaybeEnums(
+    t,
+    { type: "string", anyOf: [{ const: "constValue" }] },
+    { type: "string", const: "constValue" },
+  );
+  verifyTryToCompressUnionOfMaybeEnums(
+    t,
+    {
+      type: "string",
+      anyOf: [{ const: "constValue1" }, { enum: ["constValue2"] }],
+    },
+    { type: "string", enum: ["constValue1", "constValue2"] },
   );
 });
 

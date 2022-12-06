@@ -139,9 +139,11 @@ export const tryToCompressUnionOfMaybeEnums = (
       schema =
         spreadEnumValues.length === 1
           ? {
+              ...(schema.type ? { type: schema.type } : {}),
               const: spreadEnumValues[0],
             }
           : {
+              ...(schema.type ? { type: schema.type } : {}),
               enum: spreadEnumValues,
             };
     }
