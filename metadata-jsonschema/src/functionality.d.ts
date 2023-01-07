@@ -10,12 +10,24 @@ export interface JSONSchemaFunctionalityCreationArgumentsWithUndefinedFunctional
   TOutputContents extends TContentsBase,
   TInputContents extends TContentsBase,
 > {
-  getUndefinedPossibility: (
-    decoderOrEncoder:
-      | GetInput<TOutputContents[keyof TOutputContents]>
-      | GetInput<TInputContents[keyof TInputContents]>,
-  ) => UndefinedPossibility;
+  getUndefinedPossibility: GetUndefinedPossibility<
+    | GetInput<TOutputContents[keyof TOutputContents]>
+    | GetInput<TInputContents[keyof TInputContents]>
+  >;
 }
+
+/**
+ * Return value:
+ * - `true` -> will always return undefined
+ * - `false` -> will never return undefined
+ * - `undefined` -> may return undefined
+ */
+export type GetUndefinedPossibility<TDecoderOrEncoder> = (
+  encoderOrDecoder: TDecoderOrEncoder,
+) => UndefinedPossibility;
+
+export type UndefinedPossibility = boolean | undefined;
+
 export type JSONSchemaFunctionalityCreationArgumentsGeneric<
   TTransformedSchema,
   TStringDecoder,
@@ -32,8 +44,6 @@ export type JSONSchemaFunctionalityCreationArgumentsGeneric<
     encoders: TOutputContents;
     decoders: TInputContents;
   };
-
-export type UndefinedPossibility = boolean; // "always" | "maybe" | "never";
 
 export type JSONSchemaFunctionalityCreationArgumentsContentTypes<
   TTransformedSchema,
