@@ -15,6 +15,7 @@ export type {
   SupportedJSONSchemaFunctionality,
   TContentsBase,
   Transformer,
+  GetUndefinedPossibility,
   UndefinedPossibility,
 } from "./functionality";
 export * from "./utils";

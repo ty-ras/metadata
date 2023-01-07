@@ -24,7 +24,9 @@ export interface JSONSchemaFunctionalityCreationArgumentsWithUndefinedFunctional
  */
 export type GetUndefinedPossibility<TDecoderOrEncoder> = (
   encoderOrDecoder: TDecoderOrEncoder,
-) => boolean | undefined;
+) => UndefinedPossibility;
+
+export type UndefinedPossibility = boolean | undefined;
 
 export type JSONSchemaFunctionalityCreationArgumentsGeneric<
   TTransformedSchema,
