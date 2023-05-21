@@ -1,6 +1,6 @@
 import test, { ExecutionContext } from "ava";
 import * as spec from "../utils";
-import * as functionality from "../functionality";
+import type * as functionality from "../functionality.types";
 
 test("Validate transformerFromConstructor works", (t) => {
   t.plan(2);

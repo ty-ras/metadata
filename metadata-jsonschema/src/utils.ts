@@ -1,5 +1,5 @@
 import type * as jsonSchema from "json-schema";
-import type * as functionality from "./functionality";
+import type * as functionality from "./functionality.types";
 
 export const createJsonSchemaFunctionalityGeneric = <
   TTransformedSchema,
