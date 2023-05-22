@@ -1,3 +1,7 @@
+/**
+ * @file This file contains the definition for `createJsonSchemaFunctionalityGeneric` which will be used by other TyRAS libraries, along with few other utility methods.
+ */
+
 import type * as jsonSchema from "json-schema";
 import type * as functionality from "./functionality.types";
 
