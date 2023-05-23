@@ -129,12 +129,13 @@ const areAllConstsOrEnums = (
     return isConstOrEnum;
   }) === true;
 
+// eslint-disable-next-line jsdoc/require-yields
 /**
  * Helper function to flatten hierarchical structures.
  * Useful when e.g. handling Union<Union<string, number>, Union<X, Y>>, which will transformed into Union<string, number, X, Y>.
  * @param items The current items.
  * @param getSubItems Callback to extract more nested items from one item.
- * @yields The leaf items of the hierarchical structure tree.
+ * @returns Yields the leaf items of the hierarchical structure tree.
  */
 export function* flattenDeepStructures<T>(
   items: Array<T>,
