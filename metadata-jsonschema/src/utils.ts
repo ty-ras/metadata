@@ -1,113 +1,47 @@
 /**
- * @file This file contains the definition for `createJsonSchemaFunctionalityGeneric` which will be used by other TyRAS libraries, along with few other utility methods.
+ * @file This file contains few utility methods useful when creating {@link types.SupportedJSONSchemaFunctionality}.
  */
 
 import type * as jsonSchema from "json-schema";
-import type * as functionality from "./functionality.types";
+import type * as types from "./create-json-schema.types";
 
-export const createJsonSchemaFunctionalityGeneric = <
-  TTransformedSchema,
-  TStringDecoder,
-  TStringEncoder,
-  TOutputContents extends functionality.TContentsBase,
-  TInputContents extends functionality.TContentsBase,
->({
-  transformSchema,
-  stringDecoder,
-  stringEncoder,
-  encoders,
-  decoders,
-  getUndefinedPossibility,
-}: functionality.JSONSchemaFunctionalityCreationArgumentsGeneric<
-  TTransformedSchema,
-  TStringDecoder,
-  TStringEncoder,
-  TOutputContents,
-  TInputContents
->): functionality.SupportedJSONSchemaFunctionality<
-  TTransformedSchema,
-  TStringDecoder,
-  TStringEncoder,
-  TOutputContents,
-  TInputContents
-> => ({
-  stringDecoder: (...args) =>
-    transformSchema(
-      stringDecoder.override?.(...args) ?? stringDecoder.transform(...args),
-    ),
-  stringEncoder: (...args) =>
-    transformSchema(
-      stringEncoder.override?.(...args) ?? stringEncoder.transform(...args),
-    ),
-  encoders: Object.fromEntries(
-    Object.entries(encoders).map<
-      [
-        keyof TOutputContents,
-        functionality.SupportedJSONSchemaFunctionality<
-          TTransformedSchema,
-          TStringDecoder,
-          TStringEncoder,
-          TOutputContents,
-          TInputContents
-        >["encoders"][string],
-      ]
-    >(([contentType, { transform, override }]) => [
-      contentType,
-      (...args) => transformSchema(override?.(...args) ?? transform(...args)),
-    ]),
-  ) as unknown as functionality.SupportedJSONSchemaFunctionality<
-    TTransformedSchema,
-    TStringDecoder,
-    TStringEncoder,
-    TOutputContents,
-    TInputContents
-  >["encoders"],
-  decoders: Object.fromEntries(
-    Object.entries(decoders).map<
-      [
-        keyof TInputContents,
-        functionality.SupportedJSONSchemaFunctionality<
-          TTransformedSchema,
-          TStringDecoder,
-          TStringEncoder,
-          TOutputContents,
-          TInputContents
-        >["decoders"][string],
-      ]
-    >(([contentType, { transform, override }]) => [
-      contentType,
-      (...args) => transformSchema(override?.(...args) ?? transform(...args)),
-    ]),
-  ) as unknown as functionality.SupportedJSONSchemaFunctionality<
-    TTransformedSchema,
-    TStringDecoder,
-    TStringEncoder,
-    TOutputContents,
-    TInputContents
-  >["decoders"],
-  getUndefinedPossibility,
-});
-
+/**
+ * Creates a {@link types.Transformer} which will call custom callback if first argument will be `instanceof` given constructor.
+ * @param ctor The constructor.
+ * @param tryTransform Callback to transform the constructor.
+ * @returns The {@link types.Transformer} which calls `tryTransform` callback if the first argument is `instanceof` given `ctor`. Otherwise will return `undefined`.
+ */
 export const transformerFromConstructor =
   <TInput, TOutput>(
     ctor: Constructor<TInput>,
-    tryTransform: functionality.Transformer<TInput, TOutput>,
-  ): functionality.Transformer<unknown, TOutput | undefined> =>
+    tryTransform: types.Transformer<TInput, TOutput>,
+  ): types.Transformer<unknown, TOutput | undefined> =>
   (input, ...args) =>
     input instanceof ctor ? tryTransform(input, ...args) : undefined;
 
+/**
+ * Creates a {@link types.Transformer} which will call custom callback if first argument will exactly match (`===`) the given value.
+ * @param value The value to match exactly (`===`) against.
+ * @param tryTransform Callback to transform the value.
+ * @returns The {@link types.Transformer} which calls `tryTransform` callback if the first argument is exact match (`===`) the given `value`. Otherwise will return `undefined`.
+ */
 export const transformerFromEquality =
   <TInput, TOutput>(
     value: TInput,
-    tryTransform: functionality.Transformer<TInput, TOutput>,
-  ): functionality.Transformer<unknown, TOutput | undefined> =>
+    tryTransform: types.Transformer<TInput, TOutput>,
+  ): types.Transformer<unknown, TOutput | undefined> =>
   (input, ...args) =>
     input === value ? tryTransform(input as TInput, ...args) : undefined;
 
+/**
+ * Creates single {@link types.Transformer} which will call the given array of {@link types.Transformer} in sequence until one of them will return non-`undefined` value.
+ * @param matchers The array of {@link types.Transformer}s.
+ * @returns The {@link types.Transformer} which will call the transformers in `matchers` until one of then will return non-`undefined` value, returning that value. If all of them return `undefined`, then `undefined` will be returned.
+ */
 export const transformerFromMany =
   <TInput, TOutput>(
-    matchers: Array<functionality.Transformer<TInput, TOutput | undefined>>,
-  ): functionality.Transformer<TInput, TOutput | undefined> =>
+    matchers: Array<types.Transformer<TInput, TOutput | undefined>>,
+  ): types.Transformer<TInput, TOutput | undefined> =>
   // TODO create a copy out of matchers to prevent modifications outside of this scope
   (input, ...args) => {
     // Reduce doesn't provide a way to break early out from the loop
@@ -119,24 +53,42 @@ export const transformerFromMany =
     return result;
   };
 
+/**
+ * This function encapsulates the common logic when operating with input for {@link types.FallbackValueGeneric}, and one needs to do deduction with which final value to end up with.
+ * @param input The possible input for {@link types.FallbackValueGeneric}.
+ * @param fallbackValue The {@link types.FallbackValueGeneric} callback to call.
+ * @returns If the given `fallbackValue` is NOT a function, will return it as-is. If the given `fallbackValue` IS a function and given `input` is `undefined`, returns result of {@link getDefaultFallbackValue}. If the given `fallbackValue` is a function and given `input` is NOT `undefined`, will return result of `fallbackValue` invocation, except if it returns `undefined`, will return result of {@link getDefaultFallbackValue}.
+ */
 export const getFallbackValue = <TInput>(
   input: TInput | undefined,
-  fallbackValue: functionality.FallbackValueGeneric<TInput>,
-): functionality.JSONSchema =>
+  fallbackValue: types.FallbackValueGeneric<TInput>,
+): types.JSONSchema =>
   typeof fallbackValue === "function"
     ? input === undefined
       ? getDefaultFallbackValue()
       : fallbackValue(input) ?? getDefaultFallbackValue()
     : fallbackValue;
 
-export const getDefaultFallbackValue = (): functionality.JSONSchema => ({
-  description:
-    "This is fallback value for when JSON schema could not be generated from type validation object.",
+/**
+ * Callback to return placeholder {@link types.JSONSchema} which indicates unsupported value for current transformation.
+ * @returns A placeholder indicating unsupported value, which is an object with only one property: `description`, having value of {@link DEFAULT_FALLBACK_VALUE_DESCRIPTION}.
+ */
+export const getDefaultFallbackValue = (): types.JSONSchema => ({
+  description: DEFAULT_FALLBACK_VALUE_DESCRIPTION,
 });
 
-export const tryToCompressUnionOfMaybeEnums = (
-  schema: functionality.JSONSchema,
-) => {
+/**
+ * This is the description of the fallback value returned by {@link getDefaultFallbackValue}.
+ */
+export const DEFAULT_FALLBACK_VALUE_DESCRIPTION =
+  "This is fallback value for when JSON schema could not be generated from type validation object.";
+
+/**
+ * Tries to transform a {@link types.JSONSchema} with `anyOf` property value to {@link types.JSONSchema} with `const` or `enum` properties, if the elements of `anyOf` satisfy the criteria.
+ * @param schema The {@link types.JSONSchema} to check.
+ * @returns If given `schema` has `anyOf` property, and every element of that has either `const` or `enum` properties, returned value will be all those property values put into single object. If the final values will have only one element, it will be put as `const`. If more than one, then it will `enum`.
+ */
+export const tryToCompressUnionOfMaybeEnums = (schema: types.JSONSchema) => {
   if (schema && typeof schema === "object" && "anyOf" in schema) {
     const spreadEnumValues: Array<jsonSchema.JSONSchema7Type> = [];
     if (areAllConstsOrEnums(schema, spreadEnumValues)) {
@@ -177,7 +129,13 @@ const areAllConstsOrEnums = (
     return isConstOrEnum;
   }) === true;
 
-// Flatten e.g. Union<Union<string, number>, Union<X, Y>> into Union<string, number, X, Y>
+/**
+ * Helper function to flatten hierarchical structures.
+ * Useful when e.g. handling Union<Union<string, number>, Union<X, Y>>, which will transformed into Union<string, number, X, Y>.
+ * @param items The current items.
+ * @param getSubItems Callback to extract more nested items from one item.
+ * @yields The leaf items of the hierarchical structure tree.
+ */
 export function* flattenDeepStructures<T>(
   items: Array<T>,
   getSubItems: (item: T) => Array<T> | undefined,
@@ -194,6 +152,12 @@ export function* flattenDeepStructures<T>(
   }
 }
 
+/**
+ * Helper function to transform array of keys into object of key -> value associations.
+ * @param keys The keys.
+ * @param createValue The callback to create value from one key.
+ * @returns An object with given `keys`, and values as results from given `createValue` callback.
+ */
 export const arrayToRecord = <TKeys extends string, TValue>(
   keys: ReadonlyArray<TKeys>,
   createValue: (key: TKeys) => TValue,
@@ -203,6 +167,9 @@ export const arrayToRecord = <TKeys extends string, TValue>(
     TValue
   >;
 
+/**
+ * An interface representing any constructor, as TS stdlib is lacking one, only having {@link ConstructorParameters}.
+ */
 export interface Constructor<V> {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   new (...args: any[]): V;
