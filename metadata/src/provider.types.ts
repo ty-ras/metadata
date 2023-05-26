@@ -80,7 +80,7 @@ export interface MetadataForSingleEndpoint<TEndpointMD, TStateMD> {
   md: TEndpointMD;
 
   /**
-   * The metadata about context/state required by the HTTP endpoint.
+   * The additional metadata per HTTP method, needed to construct the metadata object for group of HTTP endpoints behind same URL path pattern.
    */
   stateMD: Partial<Record<data.HttpMethod, TStateMD>>;
 }
