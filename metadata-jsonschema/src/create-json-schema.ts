@@ -2,6 +2,7 @@
  * @file This file contains the definition for `createJsonSchemaFunctionalityGeneric` which will be used by other TyRAS libraries, along with few other utility methods.
  */
 
+import * as data from "@ty-ras/data";
 import type * as types from "./create-json-schema.types";
 
 /**
@@ -17,10 +18,9 @@ import type * as types from "./create-json-schema.types";
  */
 export const createJsonSchemaFunctionalityGeneric = <
   TTransformedSchema,
-  TStringDecoder,
-  TStringEncoder,
-  TOutputContents extends types.TContentsBase,
-  TInputContents extends types.TContentsBase,
+  TValidatorHKT extends data.ValidatorHKTBase,
+  TRequestBodyContentTypes extends string,
+  TResponseBodyContentTypes extends string,
 >({
   transformSchema,
   stringDecoder,
@@ -30,16 +30,14 @@ export const createJsonSchemaFunctionalityGeneric = <
   getUndefinedPossibility,
 }: types.JSONSchemaFunctionalityCreationArgumentsGeneric<
   TTransformedSchema,
-  TStringDecoder,
-  TStringEncoder,
-  TOutputContents,
-  TInputContents
+  TValidatorHKT,
+  TRequestBodyContentTypes,
+  TResponseBodyContentTypes
 >): types.SupportedJSONSchemaFunctionality<
   TTransformedSchema,
-  TStringDecoder,
-  TStringEncoder,
-  TOutputContents,
-  TInputContents
+  TValidatorHKT,
+  TRequestBodyContentTypes,
+  TResponseBodyContentTypes
 > => ({
   stringDecoder: (...args) =>
     transformSchema(
@@ -50,50 +48,50 @@ export const createJsonSchemaFunctionalityGeneric = <
       stringEncoder.override?.(...args) ?? stringEncoder.transform(...args),
     ),
   encoders: Object.fromEntries(
-    Object.entries(encoders).map<
+    Object.entries<
+      types.SchemaTransformation<data.AnyEncoderGeneric<TValidatorHKT>>
+    >(encoders).map<
       [
-        keyof TOutputContents,
+        TResponseBodyContentTypes,
         types.SupportedJSONSchemaFunctionality<
           TTransformedSchema,
-          TStringDecoder,
-          TStringEncoder,
-          TOutputContents,
-          TInputContents
-        >["encoders"][string],
+          TValidatorHKT,
+          TRequestBodyContentTypes,
+          TResponseBodyContentTypes
+        >["encoders"][TResponseBodyContentTypes],
       ]
     >(([contentType, { transform, override }]) => [
-      contentType,
+      contentType as TResponseBodyContentTypes,
       (...args) => transformSchema(override?.(...args) ?? transform(...args)),
     ]),
   ) as unknown as types.SupportedJSONSchemaFunctionality<
     TTransformedSchema,
-    TStringDecoder,
-    TStringEncoder,
-    TOutputContents,
-    TInputContents
+    TValidatorHKT,
+    TRequestBodyContentTypes,
+    TResponseBodyContentTypes
   >["encoders"],
   decoders: Object.fromEntries(
-    Object.entries(decoders).map<
+    Object.entries<
+      types.SchemaTransformation<data.AnyDecoderGeneric<TValidatorHKT>>
+    >(decoders).map<
       [
-        keyof TInputContents,
+        TRequestBodyContentTypes,
         types.SupportedJSONSchemaFunctionality<
           TTransformedSchema,
-          TStringDecoder,
-          TStringEncoder,
-          TOutputContents,
-          TInputContents
-        >["decoders"][string],
+          TValidatorHKT,
+          TRequestBodyContentTypes,
+          TResponseBodyContentTypes
+        >["decoders"][TRequestBodyContentTypes],
       ]
     >(([contentType, { transform, override }]) => [
-      contentType,
+      contentType as TRequestBodyContentTypes,
       (...args) => transformSchema(override?.(...args) ?? transform(...args)),
     ]),
   ) as unknown as types.SupportedJSONSchemaFunctionality<
     TTransformedSchema,
-    TStringDecoder,
-    TStringEncoder,
-    TOutputContents,
-    TInputContents
+    TValidatorHKT,
+    TRequestBodyContentTypes,
+    TResponseBodyContentTypes
   >["decoders"],
   getUndefinedPossibility,
 });

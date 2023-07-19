@@ -5,6 +5,7 @@
 import test, { ExecutionContext } from "ava";
 import * as spec from "../create-json-schema";
 import type * as functionality from "../create-json-schema.types";
+import type * as data from "@ty-ras/data";
 
 test("Validate createJsonSchemaFunctionality works", (t) => {
   t.plan(75);
@@ -43,7 +44,12 @@ const verifyCreateJsonSchemaFunctionality = (
   };
   const getUndefinedPossibility = () => true;
   const seenSchemas: Array<functionality.JSONSchema> = [];
-  const transformFunctionality = spec.createJsonSchemaFunctionalityGeneric({
+  const transformFunctionality = spec.createJsonSchemaFunctionalityGeneric<
+    functionality.JSONSchema,
+    ValidatorHKT,
+    "application/json",
+    "application/json"
+  >({
     transformSchema: (schema) => {
       seenSchemas.push(schema);
       return schema;
@@ -70,12 +76,12 @@ const verifyCreateJsonSchemaFunctionality = (
     shouldHaveResult: boolean,
     transformShouldHaveBeenCalled: boolean,
   ) => {
-    for (const [idx, schemaTransformer] of Object.entries([
+    for (const [idx, schemaTransformer] of [
       transformFunctionality.stringDecoder,
       transformFunctionality.stringEncoder,
       transformFunctionality.decoders["application/json"],
       transformFunctionality.encoders["application/json"],
-    ])) {
+    ].entries()) {
       seenTransformInputs.length = 0;
       seenSchemas.length = 0;
       const expectedResult = shouldHaveResult ? { const: input } : undefined;
@@ -110,3 +116,26 @@ const verifyCreateJsonSchemaFunctionality = (
 const returnSchema = "return-schema";
 const none = "none";
 const returnUndefined = "return-undefined";
+
+/**
+ * This is validator to be used only for tests.
+ */
+interface ValidatorHKT extends data.ValidatorHKTBase {
+  /**
+   * This provides implementation for {@link data.ValidatorHKTBase._getEncoder}.
+   * For the test setup, it is simply a string.
+   */
+  readonly _getEncoder: string;
+
+  /**
+   * This provides implementation for {@link data.ValidatorHKTBase._getDecoder}.
+   * For the test setup, it is simply a string.
+   */
+  readonly _getDecoder: string;
+
+  /**
+   * This provides implementation for {@link data.ValidatorHKTBase._getDecodedType}.
+   * For the test setup, it is simply a string.
+   */
+  readonly _getDecodedType: string;
+}
