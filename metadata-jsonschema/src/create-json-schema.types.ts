@@ -3,6 +3,7 @@
  */
 
 import type * as jsonSchema from "json-schema";
+import type * as data from "@ty-ras/data";
 
 /**
  * This type contains all necessary functionality in order to transform native `io-ts`/`zod`/`runtypes`/... validators into schema information understood by particular metadata format.
@@ -10,23 +11,25 @@ import type * as jsonSchema from "json-schema";
  */
 export interface SupportedJSONSchemaFunctionality<
   TTransformedSchema,
-  TStringDecoder,
-  TStringEncoder,
-  TOutputContents extends TContentsBase,
-  TInputContents extends TContentsBase,
-> extends JSONSchemaFunctionalityCreationArgumentsWithUndefinedFunctionality<
-    TOutputContents,
-    TInputContents
-  > {
+  TValidatorHKT extends data.ValidatorHKTBase,
+  TRequestBodyContentTypes extends string,
+  TResponseBodyContentTypes extends string,
+> extends JSONSchemaFunctionalityCreationArgumentsWithUndefinedFunctionality<TValidatorHKT> {
   /**
    * The callback to transform the decoders (deserializers) for string values (HTTP request headers, URL path parameters, query parameters), to final schema object.
    */
-  stringDecoder: Transformer<TStringDecoder, TTransformedSchema>;
+  stringDecoder: Transformer<
+    data.AnyDecoderGeneric<TValidatorHKT>,
+    TTransformedSchema
+  >;
 
   /**
    * The callback to transform the encoders (serializers) for string values, to final schema object.
    */
-  stringEncoder: Transformer<TStringEncoder, TTransformedSchema>;
+  stringEncoder: Transformer<
+    data.AnyEncoderGeneric<TValidatorHKT>,
+    TTransformedSchema
+  >;
 
   /**
    * Callbacks to transform response body encoders (serializers), to final schema object.
@@ -34,8 +37,8 @@ export interface SupportedJSONSchemaFunctionality<
    * Value is the callback to transform the encoders.
    */
   encoders: {
-    [P in keyof TOutputContents]: Transformer<
-      GetInput<TOutputContents[P]>,
+    [P in TResponseBodyContentTypes]: Transformer<
+      data.AnyEncoderGeneric<TValidatorHKT>,
       TTransformedSchema
     >;
   };
@@ -46,8 +49,8 @@ export interface SupportedJSONSchemaFunctionality<
    * Value is the callback to transform the decoders.
    */
   decoders: {
-    [P in keyof TInputContents]: Transformer<
-      GetInput<TInputContents[P]>,
+    [P in TRequestBodyContentTypes]: Transformer<
+      data.AnyDecoderGeneric<TValidatorHKT>,
       TTransformedSchema
     >;
   };
@@ -63,16 +66,15 @@ export type JSONSchema = jsonSchema.JSONSchema7Definition;
  * The common base interface for {@link SupportedJSONSchemaFunctionality} and {@link JSONSchemaFunctionalityCreationArgumentsGeneric}.
  */
 export interface JSONSchemaFunctionalityCreationArgumentsWithUndefinedFunctionality<
-  TOutputContents extends TContentsBase,
-  TInputContents extends TContentsBase,
+  TValidatorHKT extends data.ValidatorHKTBase,
 > {
   /**
    * Callback to get information on whether the given decoder or encoder accepts `undefined` as valid value.
    * @see GetUndefinedPossibility
    */
   getUndefinedPossibility: GetUndefinedPossibility<
-    | GetInput<TOutputContents[keyof TOutputContents]>
-    | GetInput<TInputContents[keyof TInputContents]>
+    | data.AnyDecoderGeneric<TValidatorHKT>
+    | data.AnyEncoderGeneric<TValidatorHKT>
   >;
 }
 
@@ -82,34 +84,38 @@ export interface JSONSchemaFunctionalityCreationArgumentsWithUndefinedFunctional
  */
 export interface JSONSchemaFunctionalityCreationArgumentsGeneric<
   TTransformedSchema,
-  TStringDecoder,
-  TStringEncoder,
-  TOutputContents extends TContentsBase,
-  TInputContents extends TContentsBase,
+  TValidatorHKT extends data.ValidatorHKTBase,
+  TRequestBodyContentTypes extends string,
+  TResponseBodyContentTypes extends string,
 > extends JSONSchemaFunctionalityCreationArgumentsBase<TTransformedSchema>,
-    JSONSchemaFunctionalityCreationArgumentsWithUndefinedFunctionality<
-      TOutputContents,
-      TInputContents
-    > {
+    JSONSchemaFunctionalityCreationArgumentsWithUndefinedFunctionality<TValidatorHKT> {
   /**
    * The {@link SchemaTransformation} for decoders (deserializers) of string values (HTTP request headers, URL path parameters, query parameters).
    */
-  stringDecoder: SchemaTransformation<TStringDecoder>;
+  stringDecoder: SchemaTransformation<data.AnyDecoderGeneric<TValidatorHKT>>;
 
   /**
    * The {@link SchemaTransformation} for encoders (serializers) of string values (HTTP response headers).
    */
-  stringEncoder: SchemaTransformation<TStringEncoder>;
+  stringEncoder: SchemaTransformation<data.AnyEncoderGeneric<TValidatorHKT>>;
 
   /**
    * The {@link SchemaTransformation} objects for encoders (serializers) of HTTP response body.
    */
-  encoders: TOutputContents;
+  encoders: {
+    [P in TResponseBodyContentTypes]: SchemaTransformation<
+      data.AnyEncoderGeneric<TValidatorHKT>
+    >;
+  };
 
   /**
    * The {@link SchemaTransformation} objects for decoders (deserializers) of HTTP request body.
    */
-  decoders: TInputContents;
+  decoders: {
+    [P in TRequestBodyContentTypes]: SchemaTransformation<
+      data.AnyDecoderGeneric<TValidatorHKT>
+    >;
+  };
 }
 
 /**
@@ -148,13 +154,19 @@ export type UndefinedPossibility = boolean | undefined;
  */
 export interface JSONSchemaFunctionalityCreationArgumentsContentTypes<
   TTransformedSchema,
-  TKeys extends string,
+  TRequestBodyContentTypes extends string,
+  TResponseBodyContentTypes extends string,
   TInput,
 > extends JSONSchemaFunctionalityCreationArgumentsBase<TTransformedSchema> {
   /**
-   * Which content types are supported by this validation framework.
+   * Which content types are supported by this validation framework for request bodies.
    */
-  contentTypes: ReadonlyArray<TKeys>;
+  requestBodyContentTypes: ReadonlyArray<TRequestBodyContentTypes>;
+
+  /**
+   * Which content types are supported by this validation framework for response bodies.
+   */
+  responseBodyContentTypes: ReadonlyArray<TResponseBodyContentTypes>;
 
   /**
    * The static value, or a callback, to get the fallback schema object, if generic functionality does not work.
@@ -207,7 +219,10 @@ export type Transformer<TInput, TReturnType> = (
  * The base type for constraints for dictionary, key of which is content MIME type string, and value is {@link SchemaTransformation}.
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type TContentsBase = Record<string, SchemaTransformation<any>>;
+export type TContentsBase<TInput> = Record<
+  string,
+  SchemaTransformation<TInput>
+>;
 
 /**
  * Helper type to extract generic parameter of given {@link SchemaTransformation}.
